@@ -6,12 +6,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +29,6 @@ public class Preprocessor {
      * Stores the result of the stemming
      */
     private List<String> originalTweets = new LinkedList<>();
-    private List<String> result = new LinkedList<>();
 
     /**
      * Stores the instances of the tweets
@@ -67,18 +66,17 @@ public class Preprocessor {
     }
 
     public void process() {
-        result.clear();
-
         for (String tweet: originalTweets) {
-            // 1. formalize
-            String formalSentence = formalizer.formalizeSentence(tweet);
+            // 1. formalize and delete stop words
+            String formalSentence = formalizer.deleteStopword(formalizer.formalizeSentence(tweet));
 
             // 2. stem
             String processedSentence = stemmer.stemSentence(formalSentence);
 
             // 3. toWordVector
+            LOGGER.log(Level.INFO, processedSentence);
 
-            result.add(processedSentence);
+            
         }
     }
 
