@@ -1,0 +1,7 @@
+tweet,kata,jokowi,soal,buruh,outsourcing,bertemu,perempuan,semoga,bisa,perjuangan,hak,ksn,ical,prabowo,pro,kelas
+tweet1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,k1
+tweet2,0,1,0,1,0,1,1,1,1,1,1,0,0,0,0,k2
+tweet3,0,1,0,1,0,0,0,0,0,0,0,1,1,1,1,k3
+tweet4,3,2,0,0,1,0,0,0,0,0,0,0,0,2,0,k1
+tweet5,1,1,0,1,0,1,1,1,1,1,1,0,0,2,0,k2
+tweet6,1,1,0,1,0,0,2,0,2,0,0,1,1,1,1,k3
