@@ -26,6 +26,8 @@ public class TFIDF {
     private List<tokenFrekuensiNWeight> tokensHukumNPolitik;
     private List<tokenFrekuensiNWeight> tokensPendidikan;
     private List<tokenFrekuensiNWeight> tokensEkonomi;
+    private List<tokenFrekuensiNWeight> tokensOther;
+    private float totalWordOther = 0f;
     private float totalWordHukumNPolitik = 0f;
     private float totalWordEkonomi = 0f;
     private float totalWordPendidikan = 0f;
@@ -36,6 +38,7 @@ public class TFIDF {
         tokensHukumNPolitik = new ArrayList<>();
         tokensPendidikan = new ArrayList<>();
         tokensEkonomi = new ArrayList<>();
+        tokensOther = new ArrayList<>();
         
         line = bufferreader.readLine();
         tokenlist = new LinkedList<String>(Arrays.asList(line.split(",")));
@@ -45,6 +48,7 @@ public class TFIDF {
             tokensHukumNPolitik.add(new tokenFrekuensiNWeight(token));
             tokensEkonomi.add(new tokenFrekuensiNWeight(token));
             tokensPendidikan.add(new tokenFrekuensiNWeight(token));
+            tokensOther.add(new tokenFrekuensiNWeight(token));
         }
         for(line = bufferreader.readLine();line!=null;line = bufferreader.readLine()){
             List<String> instances = new LinkedList<String>(Arrays.asList(line.split(",")));
@@ -66,6 +70,11 @@ public class TFIDF {
                         tokensHukumNPolitik.get(i).tokenfrekuensi += Integer.valueOf(instances.get(i));
                     }
                     break;
+                case "k4":
+                    for(int i = 0;i<instances.size()-1;i++){
+                        tokensOther.get(i).tokenfrekuensi += Integer.valueOf(instances.get(i));
+                    }
+                    break;
                 default:
                     System.err.println("Class unidentified!");
                     break;
@@ -74,37 +83,59 @@ public class TFIDF {
         float tokenHukumNPolitikFrekuensi = 0f;
         float tokenEkonomiFrekuensi = 0f;
         float tokenPendidikanFrekuensi = 0f;
+        float tokenOtherFrekuensi = 0f;
         
         for(int i =0;i<tokenlist.size();i++){
             tokenHukumNPolitikFrekuensi = tokensHukumNPolitik.get(i).tokenfrekuensi;
             tokenEkonomiFrekuensi = tokensEkonomi.get(i).tokenfrekuensi;
             tokenPendidikanFrekuensi = tokensPendidikan.get(i).tokenfrekuensi;
+            tokenOtherFrekuensi = tokensOther.get(i).tokenfrekuensi;
             if(tokenHukumNPolitikFrekuensi != 0){
                 totalWordHukumNPolitik+= tokenHukumNPolitikFrekuensi;
                 tokensHukumNPolitik.get(i).totalDocumentMentioned++;
                 tokensEkonomi.get(i).totalDocumentMentioned++;
                 tokensPendidikan.get(i).totalDocumentMentioned++;
+                tokensOther.get(i).totalDocumentMentioned++;
             }
             if(tokenEkonomiFrekuensi != 0){
                 totalWordEkonomi+= tokenEkonomiFrekuensi;
                 tokensHukumNPolitik.get(i).totalDocumentMentioned++;
                 tokensEkonomi.get(i).totalDocumentMentioned++;
                 tokensPendidikan.get(i).totalDocumentMentioned++;
+                tokensOther.get(i).totalDocumentMentioned++;
             }
             if(tokenPendidikanFrekuensi != 0){
                 totalWordPendidikan+= tokenPendidikanFrekuensi;
                 tokensHukumNPolitik.get(i).totalDocumentMentioned++;
                 tokensEkonomi.get(i).totalDocumentMentioned++;
                 tokensPendidikan.get(i).totalDocumentMentioned++;
+                tokensOther.get(i).totalDocumentMentioned++;
+            }
+            if(tokenOtherFrekuensi != 0){
+                totalWordOther+= tokenOtherFrekuensi;
+                tokensHukumNPolitik.get(i).totalDocumentMentioned++;
+                tokensEkonomi.get(i).totalDocumentMentioned++;
+                tokensPendidikan.get(i).totalDocumentMentioned++;
+                tokensOther.get(i).totalDocumentMentioned++;
             }
         }
         for(int i = 0;i<tokenlist.size();i++){
             tokenHukumNPolitikFrekuensi = tokensHukumNPolitik.get(i).tokenfrekuensi;
             tokenEkonomiFrekuensi = tokensEkonomi.get(i).tokenfrekuensi;
             tokenPendidikanFrekuensi = tokensPendidikan.get(i).tokenfrekuensi;
-            tokensHukumNPolitik.get(i).tokenweight = tokenHukumNPolitikFrekuensi/totalWordHukumNPolitik * (float)Math.log10(3/tokensHukumNPolitik.get(i).totalDocumentMentioned);
-            tokensEkonomi.get(i).tokenweight = tokenEkonomiFrekuensi/totalWordEkonomi * (float)Math.log10(3/tokensEkonomi.get(i).totalDocumentMentioned);;
-            tokensPendidikan.get(i).tokenweight = tokenPendidikanFrekuensi/totalWordPendidikan * (float)Math.log10(3/tokensPendidikan.get(i).totalDocumentMentioned);
+            tokenOtherFrekuensi = tokensOther.get(i).tokenfrekuensi;
+            if(totalWordHukumNPolitik != 0){
+                tokensHukumNPolitik.get(i).tokenweight = tokenHukumNPolitikFrekuensi/totalWordHukumNPolitik * (float)Math.log10(4/tokensHukumNPolitik.get(i).totalDocumentMentioned);
+            }
+            if(totalWordEkonomi != 0){
+                tokensEkonomi.get(i).tokenweight = tokenEkonomiFrekuensi/totalWordEkonomi * (float)Math.log10(4/tokensEkonomi.get(i).totalDocumentMentioned);;
+            }
+            if(totalWordPendidikan != 0){
+                tokensPendidikan.get(i).tokenweight = tokenPendidikanFrekuensi/totalWordPendidikan * (float)Math.log10(4/tokensPendidikan.get(i).totalDocumentMentioned);
+            }
+            if(totalWordOther != 0){
+                tokensOther.get(i).tokenweight = tokenOtherFrekuensi/totalWordOther * (float)Math.log10(4/tokensOther.get(i).totalDocumentMentioned);
+            }            
         }
         Print();
         Export("hasil-TFIDF.txt");
@@ -137,9 +168,19 @@ public class TFIDF {
             System.out.println("Frekuensi : "+data.tokenfrekuensi);
             System.out.println("Weight : "+data.tokenweight+"\n");
         }
+        System.out.println("==============Other===============");
+        counter = 0;
+        for(tokenFrekuensiNWeight data : tokensOther){
+            counter++;
+            System.out.println("Instance : "+counter);
+            System.out.println("Token : "+data.token);
+            System.out.println("Frekuensi : "+data.tokenfrekuensi);
+            System.out.println("Weight : "+data.tokenweight+"\n");
+        }
         System.out.println("Total Words in Ekonomi : "+totalWordEkonomi);
         System.out.println("Total Words in Pendidikan : "+totalWordPendidikan);
         System.out.println("Total Words in HukumNPolitik : "+totalWordHukumNPolitik);
+        System.out.println("Total Words in Other : "+totalWordOther);
         
     }
     void Export(String filepath) throws IOException{
@@ -154,6 +195,8 @@ public class TFIDF {
             writer.append(",k2,"+tokensPendidikan.get(i).tokenweight+"\n");
             writer.append(tokenlist.get(i));
             writer.append(",k3,"+tokensHukumNPolitik.get(i).tokenweight+"\n");
+            writer.append(tokenlist.get(i));
+            writer.append(",k4,"+tokensOther.get(i).tokenweight+"\n");
         }
         writer.flush();
         writer.close();
