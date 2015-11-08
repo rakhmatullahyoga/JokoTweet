@@ -8,13 +8,17 @@ package ruleBasedClassifier;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 /**
@@ -50,6 +54,10 @@ public class RuleBasedClassifier {
     //Scores
     private List<Integer> scores = new ArrayList<Integer>();
     
+    //Output File
+    private FileWriter fileWriter;
+    private CSVPrinter csvPrinter;
+    
     /**
      * Constructor with default category priority
      * @param inFile
@@ -65,14 +73,14 @@ public class RuleBasedClassifier {
         this.lawpolDictFile = new File(lawpolDictFile);
         
         // load files content to memory
-//        CSVParser ecoDictParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.ecoDictFile));
-        this.ecoDict = CSVParser.parse(this.ecoDictFile, null, CSVFormat.DEFAULT).getHeaderMap();
-//        CSVParser eduDictParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.eduDictFile));
-        this.eduDict = CSVParser.parse(this.eduDictFile, null, CSVFormat.DEFAULT).getHeaderMap();
-//        CSVParser lawpolDictParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.lawpolDictFile));
-        this.lawpolDict = CSVParser.parse(this.lawpolDictFile, null, CSVFormat.DEFAULT).getHeaderMap();
-//        CSVParser wordVectorParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.inFile));
-        this.wordVector = CSVParser.parse(this.inFile, null, CSVFormat.DEFAULT).getHeaderMap();
+        CSVParser ecoDictParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.ecoDictFile));
+        this.ecoDict.putAll(ecoDictParser.getHeaderMap());
+        CSVParser eduDictParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.eduDictFile));
+        this.eduDict.putAll(eduDictParser.getHeaderMap());
+        CSVParser lawpolDictParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.lawpolDictFile));
+        this.lawpolDict.putAll(lawpolDictParser.getHeaderMap());
+        CSVParser wordVectorParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(this.inFile));
+        this.wordVector.putAll(wordVectorParser.getHeaderMap());
         
         // initialize ecoWordsIndices, eduWordsIndices, lawpolWordsIndices
         this.setWordsIndicesLists(this.wordVector);
@@ -81,6 +89,12 @@ public class RuleBasedClassifier {
         this.scores.add(this.ecoPriority, Integer.valueOf(0));
         this.scores.add(this.eduPriority, Integer.valueOf(0));
         this.scores.add(this.lawpolPriority, Integer.valueOf(0));
+        
+        // create file output
+        this.fileWriter = new FileWriter("./data/klas_dict.csv");
+        this.csvPrinter = new CSVPrinter(this.fileWriter, CSVFormat.DEFAULT.withRecordSeparator("\n"));
+        this.wordVector.put("kelas", Integer.valueOf(99999));
+        this.csvPrinter.printRecord(this.wordVector.keySet());
     }
     
     /**
@@ -115,12 +129,18 @@ public class RuleBasedClassifier {
         this.wordVector = CSVParser.parse(this.inFile, null, CSVFormat.DEFAULT).getHeaderMap();
         
         // initialize ecoWordsIndices, eduWordsIndices, lawpolWordsIndices
-        this.setWordsIndicesLists(this.wordVector);
+//        this.setWordsIndicesLists(this.wordVector);
         
         // initialize scores
-        this.scores.add(this.ecoPriority, Integer.valueOf(0));
-        this.scores.add(this.eduPriority, Integer.valueOf(0));
-        this.scores.add(this.lawpolPriority, Integer.valueOf(0));
+//        this.scores.add(this.ecoPriority, Integer.valueOf(0));
+//        this.scores.add(this.eduPriority, Integer.valueOf(0));
+//        this.scores.add(this.lawpolPriority, Integer.valueOf(0));
+        
+        // create file output
+        this.fileWriter = new FileWriter("./data/klas_dict.csv");
+        this.csvPrinter = new CSVPrinter(this.fileWriter, CSVFormat.DEFAULT.withRecordSeparator("\n"));
+        this.wordVector.put("kelas", Integer.valueOf(99999));
+        this.csvPrinter.printRecord(this.wordVector.keySet());
     }
     
     public void setWordsIndicesLists(Map<String, Integer> inMap) {
@@ -140,13 +160,60 @@ public class RuleBasedClassifier {
     // label tweet as "other" if scores [0,0,0]
     
     public void labelling() throws FileNotFoundException, IOException {
-        CSVParser tweets = CSVFormat.DEFAULT.withSkipHeaderRecord(true).parse(new FileReader(this.inFile));
+        CSVParser tweets = CSVFormat.DEFAULT.withSkipHeaderRecord().parse(new FileReader(new File("./data/preprocessor-test-woheader.csv")));
+        
         for(CSVRecord tweet : tweets) {
+            int tmpEcoScore = 0;
+            int tmpEduScore = 0;
+            int tmpLawpolScore = 0;
             for(Integer ecoIdx : this.ecoWordsIndices) {
-                int l = this.scores.get(this.ecoPriority).intValue() + Integer.parseInt(tweet.get(ecoIdx.intValue()));
-                this.scores.get(this.ecoPriority).intValue() += l;
-                Integer.pa
+                tmpEcoScore += Integer.parseInt(tweet.get(ecoIdx.intValue()));
             }
+            for(Integer eduIdx : this.eduWordsIndices) {
+                tmpEduScore += Integer.parseInt(tweet.get(eduIdx.intValue()));
+            }
+            for(Integer lawpolIdx : this.lawpolWordsIndices) {
+                tmpLawpolScore += Integer.parseInt(tweet.get(lawpolIdx.intValue()));
+            }
+            this.scores.set(this.ecoPriority, Integer.valueOf(tmpEcoScore));
+            this.scores.set(this.eduPriority, Integer.valueOf(tmpEduScore));
+            this.scores.set(this.lawpolPriority, Integer.valueOf(tmpLawpolScore));
+            
+            Map<String, String> tmpMap = tweet.toMap();
+            
+            // TODO classify based on scores and print it to output file
+            if (Collections.frequency(this.scores, Integer.valueOf(0)) == 3) {
+                // TODO label the tweet as "Other"
+                System.out.println("Other");
+                tmpMap.put("kelas", "Other");
+            } else {
+                // TODO depend on getMaxScoreIndex
+                int maxScoreCategory = getMaxScoreIndex((ArrayList<Integer>) this.scores);
+                if (maxScoreCategory == this.ecoPriority) {
+                    tmpMap.put("kelas", "Ekonomi");
+                    System.out.println("Ekonomi");
+                } else if (maxScoreCategory == this.eduPriority) {
+                    tmpMap.put("kelas", "Pendidikan");
+                    System.out.println("Pendidikan");
+                } else {
+                    tmpMap.put("kelas", "Hukum & Politik");
+                    System.out.println("Hukum-Politik");
+                }
+                
+            }
+            this.csvPrinter.printRecord(tmpMap.values());    
+        }
+    }
+    
+    public int getMaxScoreIndex(ArrayList<Integer> arrInt) {
+        Integer maxScore = Collections.max(arrInt);
+        int maxOccurence = Collections.frequency(arrInt, maxScore);
+        if (maxOccurence == 1) {
+            return this.scores.indexOf(maxScore);
+        } else {
+            if (this.scores.get(0).equals(maxScore))
+                return 0;
+            return 1;
         }
     }
     
@@ -160,5 +227,11 @@ public class RuleBasedClassifier {
     
     public void setLawpolPriority(int i) {
         this.lawpolPriority = i;
+    }
+    
+    public static void main(String args[]) throws IOException {
+        RuleBasedClassifier rbc = new RuleBasedClassifier("./data/preproc.csv",
+            "./data/ecodict.csv", "./data/edudict.csv", "./data/lawpoldict.csv");
+        rbc.labelling();
     }
 }

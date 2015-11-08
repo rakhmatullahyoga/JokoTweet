@@ -11,6 +11,7 @@ public class Main {
             Preprocessor preprocessor = new Preprocessor("./data/stopword.txt", "./data/jokowi_sort_uniq.csv");
             preprocessor.process();
 
+            preprocessor.exportToCsv("./data/preprocessor-test.csv");
         } catch (IOException e) {
             e.printStackTrace();
         }

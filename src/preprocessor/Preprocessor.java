@@ -7,9 +7,18 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
+import weka.core.Attribute;
+import weka.core.FastVector;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.converters.CSVSaver;
+import weka.core.tokenizers.Tokenizer;
+import weka.core.tokenizers.WordTokenizer;
+import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,7 +30,6 @@ import java.util.logging.Logger;
 public class Preprocessor {
     private static final Logger LOGGER = Logger.getLogger(Preprocessor.class.getName());
 
-    private StringToWordVector wordVector = new StringToWordVector();
     private IndonesianSentenceFormalization formalizer = new IndonesianSentenceFormalization();
     private IndonesianStemmer stemmer = new IndonesianStemmer();
 
@@ -29,6 +37,11 @@ public class Preprocessor {
      * Stores the result of the stemming
      */
     private List<String> originalTweets = new LinkedList<>();
+
+    /**
+     * Stores the bag of words
+     */
+    private Instances result;
 
     /**
      * Stores the instances of the tweets
@@ -57,7 +70,6 @@ public class Preprocessor {
 
         CSVParser csvParser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(tweetInstancesFile));
 
-        System.out.println("Headers:");
         for (CSVRecord record: csvParser) {
             originalTweets.add(record.get("content"));
         }
@@ -66,6 +78,12 @@ public class Preprocessor {
     }
 
     public void process() {
+        // prep the attributes first
+        FastVector attributes = new FastVector(1);
+        attributes.addElement(new Attribute("tweet", (FastVector) null));
+
+        Instances instances = new Instances("filtered_tweets", attributes, 0);
+
         for (String tweet: originalTweets) {
             // 1. formalize and delete stop words
             String formalSentence = formalizer.deleteStopword(formalizer.formalizeSentence(tweet));
@@ -73,20 +91,33 @@ public class Preprocessor {
             // 2. stem
             String processedSentence = stemmer.stemSentence(formalSentence);
 
-            // 3. toWordVector
-            LOGGER.log(Level.INFO, processedSentence);
+            // 3. add to instances
+            double[] newInstanceValue = new double[1];
+            newInstanceValue[0] = instances.attribute("tweet").addStringValue(processedSentence);
+            instances.add(new Instance(1.0, newInstanceValue));
+        }
+        LOGGER.log(Level.INFO, String.format("Read %d tweets\n", instances.numInstances()));
 
-            
+        // create and setup the StringToWordVector
+        StringToWordVector wordVector = new StringToWordVector();
+        wordVector.setTokenizer(new WordTokenizer());
+
+        try {
+            wordVector.setInputFormat(instances);
+
+            LOGGER.log(Level.INFO, "Creating bag of words...");
+            result = Filter.useFilter(instances, wordVector);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void exportToCsv(String targetCsv) throws IOException {
         File output = new File(targetCsv);
 
-        CSVPrinter csvPrinter = CSVFormat.DEFAULT
-                .withHeader("no", "original_tweet", "filtered")
-                .print(new OutputStreamWriter(new FileOutputStream(targetCsv)));
-
-        csvPrinter.close();
+        CSVSaver saver = new CSVSaver();
+        saver.setFile(output);
+        saver.setInstances(result);
+        saver.writeBatch();
     }
 }
