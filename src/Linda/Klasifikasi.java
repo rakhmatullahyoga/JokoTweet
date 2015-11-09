@@ -89,14 +89,11 @@ public class Klasifikasi {
                 instances.get(i).add("Other");
             }
             
-        }
-        
-        
-            
+        }    
     }
     public static void main(String[] args) throws IOException{
         Klasifikasi klasifikasi = new Klasifikasi();
-        klasifikasi.start("testing.csv","dummytfidf.csv");
+        klasifikasi.start("./data/preprocessor-test.csv","hasil-TFIDF.csv");
         klasifikasi.Export("hasil-klasifikasi.csv");
     }
     
