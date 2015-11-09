@@ -63,22 +63,22 @@ public class TFIDF {
             instances.remove(0);
             String classtype = instances.get(instances.size()-1);
             switch(classtype){
-                case "k1":
+                case "Ekonomi":
                     for(int i = 0;i<instances.size()-1;i++){
                         tokensEkonomi.get(i).tokenfrekuensi += Integer.valueOf(instances.get(i));
                     }
                     break;
-                case "k2":
+                case "Pendidikan":
                     for(int i = 0;i<instances.size()-1;i++){
                         tokensPendidikan.get(i).tokenfrekuensi += Integer.valueOf(instances.get(i));
                     }
                     break;
-                case "k3":
+                case "Hukum-Politik":
                     for(int i = 0;i<instances.size()-1;i++){
                         tokensHukumNPolitik.get(i).tokenfrekuensi += Integer.valueOf(instances.get(i));
                     }
                     break;
-                case "k4":
+                case "Other":
                     for(int i = 0;i<instances.size()-1;i++){
                         tokensOther.get(i).tokenfrekuensi += Integer.valueOf(instances.get(i));
                     }
@@ -144,7 +144,7 @@ public class TFIDF {
             if(totalWordOther != 0){
                 tokensOther.get(i).tokenweight = tokenOtherFrekuensi/totalWordOther * (float)Math.log10(4/tokensOther.get(i).totalDocumentMentioned);
             }
-            if(tokensHukumNPolitik.get(i).tokenweight >= tokensEkonomi.get(i).tokenweight &&
+            /*if(tokensHukumNPolitik.get(i).tokenweight >= tokensEkonomi.get(i).tokenweight &&
                     tokensHukumNPolitik.get(i).tokenweight >= tokensPendidikan.get(i).tokenweight &&
                     tokensHukumNPolitik.get(i).tokenweight >= tokensOther.get(i).tokenweight){
                 hasilPolitik.add(tokensHukumNPolitik.get(i));
@@ -163,7 +163,7 @@ public class TFIDF {
                     tokensOther.get(i).tokenweight >= tokensEkonomi.get(i).tokenweight &&
                     tokensOther.get(i).tokenweight >= tokensPendidikan.get(i).tokenweight){
                 hasilOther.add(tokensOther.get(i));
-            }
+            }*/
         }
         Print();
         Export("hasil-TFIDF.csv");
@@ -172,7 +172,7 @@ public class TFIDF {
     void Print(){
         int counter = 0;
         System.out.println("==============Ekonomi===============");
-        for(tokenFrekuensiNWeight data : hasilEkonomi){
+        for(tokenFrekuensiNWeight data : tokensEkonomi){
             counter++;
             System.out.println("Instance : "+counter);
             System.out.println("Token : "+data.token);
@@ -181,7 +181,7 @@ public class TFIDF {
         }
         System.out.println("==============Pendidikan===============");
         counter = 0;
-        for(tokenFrekuensiNWeight data : hasilPendidikan){
+        for(tokenFrekuensiNWeight data : tokensPendidikan){
             counter++;
             System.out.println("Instance : "+counter);
             System.out.println("Token : "+data.token);
@@ -190,7 +190,7 @@ public class TFIDF {
         }
         System.out.println("==============HukumNPolitik===============");
         counter = 0;
-        for(tokenFrekuensiNWeight data : hasilPolitik){
+        for(tokenFrekuensiNWeight data : tokensHukumNPolitik){
             counter++;
             System.out.println("Instance : "+counter);
             System.out.println("Token : "+data.token);
@@ -199,7 +199,7 @@ public class TFIDF {
         }
         System.out.println("==============Other===============");
         counter = 0;
-        for(tokenFrekuensiNWeight data : hasilOther){
+        for(tokenFrekuensiNWeight data : tokensOther){
             counter++;
             System.out.println("Instance : "+counter);
             System.out.println("Token : "+data.token);
@@ -216,25 +216,41 @@ public class TFIDF {
         FileWriter writer = new FileWriter(filepath);
         writer.append("token,kelas,bobot");
         writer.append("\n");
-        for(int i=0;i<hasilEkonomi.size()-1;i++){
+        /*for(int i=0;i<hasilEkonomi.size()-1;i++){
             //HukumNPolitik
             writer.append(hasilEkonomi.get(i).token);
-            writer.append(",k1,"+tokensEkonomi.get(i).tokenweight+"\n");
+            writer.append(",Ekonomi,"+tokensEkonomi.get(i).tokenweight+"\n");
         }
         for(int i=0;i<hasilPendidikan.size()-1;i++){
             //HukumNPolitik
             writer.append(hasilPendidikan.get(i).token);
-            writer.append(",k2,"+hasilPendidikan.get(i).tokenweight+"\n");
+            writer.append(",Pendidikan,"+hasilPendidikan.get(i).tokenweight+"\n");
         }
         for(int i=0;i<hasilPolitik.size()-1;i++){
             //HukumNPolitik
             writer.append(hasilPolitik.get(i).token);
-            writer.append(",k3,"+hasilPolitik.get(i).tokenweight+"\n");
+            writer.append(",Hukum-Politik,"+hasilPolitik.get(i).tokenweight+"\n");
         }
         for(int i=0;i<hasilOther.size()-1;i++){
             //HukumNPolitik
             writer.append(hasilOther.get(i).token);
-            writer.append(",k4,"+hasilOther.get(i).tokenweight+"\n");
+            writer.append(",Other,"+hasilOther.get(i).tokenweight+"\n");
+        }*/
+        for(tokenFrekuensiNWeight token : tokensEkonomi){
+            writer.append(token.token);
+            writer.append(",Ekonomi,"+token.tokenweight+"\n");
+        }
+        for(tokenFrekuensiNWeight token : tokensPendidikan){
+            writer.append(token.token);
+            writer.append(",Pendidikan,"+token.tokenweight+"\n");
+        }
+        for(tokenFrekuensiNWeight token : tokensHukumNPolitik){
+            writer.append(token.token);
+            writer.append(",Hukum-Politik,"+token.tokenweight+"\n");
+        }
+        for(tokenFrekuensiNWeight token : tokensOther){
+            writer.append(token.token);
+            writer.append(",Other,"+token.tokenweight+"\n");
         }
         writer.flush();
         writer.close();
@@ -242,7 +258,7 @@ public class TFIDF {
     
     public static void main(String[] args) throws IOException{
         TFIDF tfidf = new TFIDF();
-        tfidf.start("klas_dict.txt");
+        tfidf.start("klas_dict.csv");
     }
     
 }
