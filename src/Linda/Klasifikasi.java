@@ -139,15 +139,16 @@ public class Klasifikasi {
     }
     public void Export(String fileouput) throws IOException{
         FileWriter writer = new FileWriter(fileouput);
-        for(String token : tokenlist){
-            writer.append(token);
+        for(int i=0;i<tokenlist.size()-1;i++){
+            writer.append(tokenlist.get(i)+",");
         }
-        writer.append("\n");
+        writer.append(tokenlist.get(tokenlist.size()-1));
+        writer.append(",Hasil\n");
         for(int i =0;i < instances.size();i++){
-            for(String data : instances.get(i)){
-                writer.append(data);
+            for(int j = 0;j<instances.get(i).size()-1;j++){
+                writer.append(instances.get(i).get(j)+",");
             }
-            writer.append("\n");
+            writer.append(instances.get(i).get(instances.get(i).size()-1)+"\n");
         }
         writer.flush();
         writer.close();
