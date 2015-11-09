@@ -50,7 +50,7 @@ public class TFIDF {
         
         line = bufferreader.readLine();
         tokenlist = new LinkedList<String>(Arrays.asList(line.split(",")));
-        tokenlist.remove(0);
+        //tokenlist.remove(0);
         tokenlist.remove(tokenlist.size()-1);
         for(String token : tokenlist){
             tokensHukumNPolitik.add(new tokenFrekuensiNWeight(token));
@@ -60,7 +60,7 @@ public class TFIDF {
         }
         for(line = bufferreader.readLine();line!=null;line = bufferreader.readLine()){
             List<String> instances = new LinkedList<String>(Arrays.asList(line.split(",")));
-            instances.remove(0);
+            //instances.remove(0);
             String classtype = instances.get(instances.size()-1);
             switch(classtype){
                 case "Ekonomi":
