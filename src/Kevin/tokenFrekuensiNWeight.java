@@ -14,9 +14,16 @@ public class tokenFrekuensiNWeight{
     public float tokenfrekuensi = 0f;
     public float tokenweight = 0f;
     public float totalDocumentMentioned = 0f;
+    public String estimatedclass = null;
 
     public tokenFrekuensiNWeight(String token){
         this.token = token;
+    }
+    
+    public tokenFrekuensiNWeight(String token,String estString,float weight){
+        this.token = token;
+        this.estimatedclass = estString;
+        this.tokenweight = weight;
     }
 
     @Override
