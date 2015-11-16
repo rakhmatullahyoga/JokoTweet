@@ -3,13 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/tesinanlp/TesInaNLP.java</file>
-            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/ruleBasedClassifier/RuleBasedClassifier.java</file>
-            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/preprocessor/Main.java</file>
-            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/Linda/Klasifikasi.java</file>
             <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/preprocessor/Preprocessor.java</file>
-            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/Kevin/TFIDF.java</file>
+            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/tesinanlp/TesInaNLP.java</file>
+            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/preprocessor/Main.java</file>
+            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/ruleBasedClassifier/RuleBasedClassifier.java</file>
             <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/Kevin/tokenFrekuensiNWeight.java</file>
+            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/Kevin/TFIDF.java</file>
+            <file>file:/D:/Ngoding/NLP/tesInaNLP%20-%20Copy/src/Linda/Klasifikasi.java</file>
         </group>
     </open-files>
 </project-private>
