@@ -230,7 +230,7 @@ public class RuleBasedClassifier {
     }
     
     public static void main(String args[]) throws IOException {
-        RuleBasedClassifier rbc = new RuleBasedClassifier("./data/preproc.csv",
+        RuleBasedClassifier rbc = new RuleBasedClassifier("./data/preprocessor-test.csv",
             "./data/ecodict.csv", "./data/edudict.csv", "./data/lawpoldict.csv");
         rbc.labelling();
     }

@@ -93,7 +93,9 @@ public class Klasifikasi {
     }
     public static void main(String[] args) throws IOException{
         Klasifikasi klasifikasi = new Klasifikasi();
+        System.out.println("start");
         klasifikasi.start("./data/preprocessor-test.csv","hasil-TFIDF.csv");
+        System.out.println("export");
         klasifikasi.Export("hasil-klasifikasi.csv");
     }
     
