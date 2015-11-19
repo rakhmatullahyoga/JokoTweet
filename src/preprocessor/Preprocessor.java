@@ -20,6 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Alvin Natawiguna on 11/5/2015.
@@ -82,13 +84,42 @@ public class Preprocessor {
         Instances instances = new Instances("filtered_tweets", attributes, 0);
 
         for (String tweet: originalTweets) {
-            // 1. formalize and delete stop words
-            String formalSentence = formalizer.deleteStopword(formalizer.formalizeSentence(tweet));
+            // 1. regex
+            String line = tweet.substring(1, tweet.length()-1);
+            String pattern1 = "\\shttp(s)?[\\:\\.\\/a-z0-9]+";
+            String pattern2 = "#[\\S]+(\\s)?$";
+            String pattern3 = "^(#[\\S]+(\\s)?)+";
+            String pattern4 = "RT\\s";
+            String pattern5 = "(\\s)?@[\\S]+";
+            String replace = "";
+            String resultRegex;
+            Pattern p = Pattern.compile(pattern1, Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(line);
+            resultRegex = m.replaceAll(replace);
+            line = resultRegex;
+            p = Pattern.compile(pattern2, Pattern.CASE_INSENSITIVE);
+            m = p.matcher(line);
+            resultRegex = m.replaceAll(replace);
+            line = resultRegex;
+            p = Pattern.compile(pattern3, Pattern.CASE_INSENSITIVE);
+            m = p.matcher(line);
+            resultRegex = m.replaceAll(replace);
+            line = resultRegex;
+            p = Pattern.compile(pattern4, Pattern.CASE_INSENSITIVE);
+            m = p.matcher(line);
+            resultRegex = m.replaceAll(replace);
+            line = resultRegex;
+            p = Pattern.compile(pattern5, Pattern.CASE_INSENSITIVE);
+            m = p.matcher(line);
+            resultRegex = m.replaceAll(replace);
+            
+            // 2. formalize and delete stop words
+            String formalSentence = formalizer.deleteStopword(formalizer.formalizeSentence(resultRegex));
 
-            // 2. stem
+            // 3. stem
             String processedSentence = stemmer.stemSentence(formalSentence);
 
-            // 3. add to instances
+            // 4. add to instances
             double[] newInstanceValue = new double[1];
             newInstanceValue[0] = instances.attribute("tweet").addStringValue(processedSentence);
             instances.add(new Instance(1.0, newInstanceValue));
